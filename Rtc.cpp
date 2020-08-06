@@ -1,10 +1,26 @@
+/**
+ * @file Rtc.cpp
+ * @author Rasmus Sørensen (bundsgaard.rasmus@gmail.com)
+ * @brief Rtc class - this will automatically sync your board time with the world!
+ * @version 0.1
+ * @date 2020-08-06
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #include "mbed.h"
-#include "../ntp-client/NTPClient.h"
+#include "./ntp-client/NTPClient.h"
 #include "./Rtc.h"
 
 using namespace Bundsgaard;
 using namespace std::chrono;
 
+/**
+ * @brief Construct a new Rtc:: Rtc object
+ * 
+ * @param refreshInterval Interval is in MINUTES
+ */
 Rtc::Rtc(int refreshInterval)
 {
     this->refreshInterval = refreshInterval;
@@ -27,12 +43,20 @@ Rtc::Rtc(int refreshInterval)
     }
 }
 
+/**
+ * @brief Start a thread to collect NTP timestamps
+ * 
+ */
 void Rtc::Start()
 {
-    this->_thread.start(callback(this, &Bundsgaard::Rtc::Run));
+    this->_thread.start(callback(this, &Bundsgaard::Rtc::Worker));
 }
 
-void Rtc::Run()
+/**
+ * @brief Thread worker callback
+ * 
+ */
+void Rtc::Worker()
 {
     NTPClient ntp(this->net);
     bool firstIteration = true;
@@ -55,18 +79,32 @@ void Rtc::Run()
     }
 }
 
+/**
+ * @brief Returns the latest time gotten from the NTP server
+ * 
+ * @return time_t 
+ */
 time_t Rtc::GetNTPTime()
 {
     return this->ntpTime;
 }
 
+/**
+ * @brief Get the current time (UTC)
+ * 
+ * @return time_t 
+ */
 time_t Rtc::GetTime()
 {
     return time(NULL);
 }
 
+/**
+ * @brief Get the current UNIX timestamp
+ * 
+ * @return unsigned int 
+ */
 unsigned int Rtc::GetTimestamp()
 {
     return (unsigned int)time(NULL);
 }
-
