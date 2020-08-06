@@ -37,9 +37,9 @@ namespace Bundsgaard
             /**
              * @brief Construct a new Rtc object
              * 
-             * @param refreshInterval 
+             * @param syncInterval 
              */
-            Rtc(int refreshInterval);
+            Rtc(int syncInterval);
 
             /**
              * @brief Start the thread
@@ -80,7 +80,7 @@ namespace Bundsgaard
             Thread _thread;
             NetworkInterface *net;
             time_t ntpTime = 0;
-            int refreshInterval;
+            int syncInterval;
     };
 }
 

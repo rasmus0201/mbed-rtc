@@ -18,7 +18,7 @@ Be aware that the NTP protocol have no idea what timezones is. So timestamps wil
 
 |  Method  |  Output Type | Description |
 |---|---|---|
-| Bundsgaard::Rtc::Rtc(int refreshInterval) |   | Constructor. Interval in **minutes** |
+| Bundsgaard::Rtc::Rtc(int syncInterval) |   | Constructor. Interval in **minutes** |
 | Bundsgaard::Rtc::Start() |   | Start the RTC |
 | Bundsgaard::Rtc::GetNTPTime() | time_t | Get's the latest time from the NTP server |
 | Bundsgaard::Rtc::GetTime() | time_t | Get the current system time |
@@ -31,10 +31,10 @@ Be aware that the NTP protocol have no idea what timezones is. So timestamps wil
 #include "Rtc.h"
 
 // Interval is in minutes
-#define NTP_REFRESH_INTERVAL 10
+#define NTP_SYNC_INTERVAL 10
 
 int main() {
-    Bundsgaard::Rtc* rtc = new Bundsgaard::Rtc(NTP_REFRESH_INTERVAL);
+    Bundsgaard::Rtc* rtc = new Bundsgaard::Rtc(NTP_SYNC_INTERVAL);
     rtc->Start();
 
     while(true) {

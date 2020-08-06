@@ -19,11 +19,11 @@ using namespace std::chrono;
 /**
  * @brief Construct a new Rtc:: Rtc object
  * 
- * @param refreshInterval Interval is in MINUTES
+ * @param syncInterval Interval is in MINUTES
  */
-Rtc::Rtc(int refreshInterval)
+Rtc::Rtc(int syncInterval)
 {
-    this->refreshInterval = refreshInterval;
+    this->syncInterval = syncInterval;
     this->error = RtcErrors::NO_ERROR;
     this->net = NetworkInterface::get_default_instance();
 
@@ -63,7 +63,7 @@ void Rtc::Worker()
 
     while(1) {
         if (firstIteration == false) {
-            ThisThread::sleep_for(minutes(this->refreshInterval));
+            ThisThread::sleep_for(minutes(this->syncInterval));
         }
         
         time_t currentTime = ntp.get_timestamp();
