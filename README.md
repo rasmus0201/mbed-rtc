@@ -4,6 +4,16 @@ This is a simple library to setup automatic synchronization of `time()` by an on
 
 Be aware that the NTP protocol have no idea what timezones is. So timestamps will always be UTC.
 
+### Installation:
+
+**Mbed Studio:**
+
+1. Copy the git URL of this repo (`https://github.com/rasmus0201/mbed-rtc`)
+2. Open the `Libraries` tab and press the "+" button
+3. Paste the github URL - press next
+4. Use master as the version
+5. You are done installing!
+
 ### Usage:
 
 |  Method  |  Output Type | Description |
