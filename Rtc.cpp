@@ -43,13 +43,19 @@ Rtc::Rtc(int syncInterval)
     }
 }
 
+Rtc::~Rtc()
+{
+    this->ticker.detach();
+    this->thread.terminate();
+}
+
 /**
  * @brief Start a thread to collect NTP timestamps
  * 
  */
 void Rtc::Start()
 {
-    this->_thread.start(callback(this, &Bundsgaard::Rtc::Worker));
+    this->thread.start(callback(this, &Bundsgaard::Rtc::Worker));
 }
 
 /**
@@ -58,6 +64,7 @@ void Rtc::Start()
  */
 void Rtc::Worker()
 {
+    this->ticker.attach(callback(this, &Rtc::Tick), microseconds(1000));
     NTPClient ntp(this->net);
     bool firstIteration = true;
 
@@ -76,6 +83,19 @@ void Rtc::Worker()
         set_time(currentTime);
         this->ntpTime = currentTime;
         firstIteration = false;
+    }
+}
+
+/**
+ * @brief Tick every millisecond
+ * 
+ */
+void Rtc::Tick()
+{
+    this->ms++;
+
+    if (this->ms > 1000) {
+        this->ms = 0;
     }
 }
 
@@ -107,4 +127,18 @@ time_t Rtc::GetTime()
 unsigned int Rtc::GetTimestamp()
 {
     return (unsigned int)time(NULL);
+}
+
+/**
+ * @brief Get the current UNIX timestamp in MS
+ * 
+ * @return uint64_t
+ */
+uint64_t Rtc::GetTimestampMS()
+{
+    uint64_t msTime = time(NULL);
+    msTime *= 1000;
+    msTime += this->ms;
+
+    return msTime;
 }

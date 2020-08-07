@@ -42,6 +42,12 @@ namespace Bundsgaard
             Rtc(int syncInterval);
 
             /**
+             * @brief Destruct object
+             * 
+             */
+            ~Rtc();
+
+            /**
              * @brief Start the thread
              * 
              */
@@ -67,6 +73,13 @@ namespace Bundsgaard
              * @return unsigned int 
              */
             unsigned int GetTimestamp();
+
+            /**
+             * @brief Get the current UNIX timestamp in milliseconds 
+             * 
+             * @return uint64_t
+             */
+            uint64_t GetTimestampMS();
         
         private:
             /**
@@ -74,13 +87,20 @@ namespace Bundsgaard
              * 
              */
             void Worker();
+
+            /**
+             * @brief Tick
+             */
+            void Tick();
             
         private:
             RtcErrors error = Bundsgaard::RtcErrors::NO_ERROR;
-            Thread _thread;
+            Ticker ticker;
+            Thread thread;
             NetworkInterface *net;
             time_t ntpTime = 0;
             int syncInterval;
+            int ms;
     };
 }
 

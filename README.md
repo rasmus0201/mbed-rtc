@@ -1,8 +1,8 @@
 # RTC = Real-Time Clock for Mbed OS 6
 
-This is a simple library to setup automatic synchronization of `time()` by an online NTP server.
+This is a simple library to setup automatic synchronization of `time()` by an online NTP server. This library will synchronize the system time with the NTP server every _X_ minutes on another thread.
 
-Be aware that the NTP protocol have no idea what timezones is. So timestamps will always be UTC.
+Be aware that the NTP protocol have no idea what timezones is. So times/timestamps will always be UTC.
 
 ### Installation:
 
@@ -23,6 +23,7 @@ Be aware that the NTP protocol have no idea what timezones is. So timestamps wil
 | Bundsgaard::Rtc::GetNTPTime() | time_t | Get's the latest time from the NTP server |
 | Bundsgaard::Rtc::GetTime() | time_t | Get the current system time |
 | Bundsgaard::Rtc::GetTimestamp() | uint32_t | Get the current system timestamp |
+| Bundsgaard::Rtc::GetTimestampMS() | uint64_t | Get the current system timestamp in milliseconds |
 
 
 ### Example:
