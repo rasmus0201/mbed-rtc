@@ -23,6 +23,7 @@ using namespace std::chrono;
  */
 Rtc::Rtc(int syncInterval)
 {
+    this->ms = 0;
     this->syncInterval = syncInterval;
     this->error = RtcErrors::NO_ERROR;
     this->net = NetworkInterface::get_default_instance();
@@ -136,8 +137,7 @@ unsigned int Rtc::GetTimestamp()
  */
 uint64_t Rtc::GetTimestampMS()
 {
-    uint64_t msTime = time(NULL);
-    msTime *= 1000;
+    uint64_t msTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
     msTime += this->ms;
 
     return msTime;
