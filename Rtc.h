@@ -36,7 +36,7 @@ namespace Bundsgaard
         public:
             /**
              * @brief Construct a new Rtc object
-             * 
+             *
              * @param syncInterval 
              */
             Rtc(int syncInterval);

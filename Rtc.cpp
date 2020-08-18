@@ -28,19 +28,28 @@ Rtc::Rtc(int syncInterval)
     this->error = RtcErrors::NO_ERROR;
     this->net = NetworkInterface::get_default_instance();
 
-    if (!this->net) {
+    if (!this->net || this->net == nullptr) {
         this->error = RtcErrors::NO_INTERFACE;
         printf("Error! No network interface found.\n");
-        
+
         return;
     }
 
-    nsapi_size_or_error_t result = this->net->connect();
-    if (result != 0) {
-        this->error = RtcErrors::CONNECTION_FAILED;
-        printf("Error! net->connect() returned: %d\n", result);
+    if (this->net->get_connection_status() == NSAPI_STATUS_ERROR_UNSUPPORTED) {
+        this->error = RtcErrors::NO_INTERFACE;
+        printf("Error! Network interface not supported.\n");
 
         return;
+    }
+
+    if (this->net->get_connection_status() == NSAPI_STATUS_DISCONNECTED) {
+        nsapi_size_or_error_t result = this->net->connect();
+        if (result != 0) {
+            this->error = RtcErrors::CONNECTION_FAILED;
+            printf("Error! net->connect() returned: %d\n", result);
+
+            return;
+        }
     }
 }
 
@@ -65,6 +74,9 @@ void Rtc::Start()
  */
 void Rtc::Worker()
 {
+    // Block while the network is connecting
+    while(this->net->get_connection_status() == NSAPI_STATUS_CONNECTING) {}
+    
     this->ticker.attach(callback(this, &Rtc::Tick), microseconds(1000));
     NTPClient ntp(this->net);
     bool firstIteration = true;
@@ -72,6 +84,11 @@ void Rtc::Worker()
     while(1) {
         if (firstIteration == false) {
             ThisThread::sleep_for(minutes(this->syncInterval));
+        }
+
+        // If no internet connection
+        if (this->net->get_connection_status() != NSAPI_STATUS_GLOBAL_UP) {
+            break;
         }
         
         time_t currentTime = ntp.get_timestamp();

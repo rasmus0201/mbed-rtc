@@ -34,7 +34,7 @@ Be aware that the NTP protocol have no idea what timezones is. So times/timestam
 // Interval is in minutes
 #define NTP_SYNC_INTERVAL 10
 
-int main() {
+int main() {    
     Bundsgaard::Rtc* rtc = new Bundsgaard::Rtc(NTP_SYNC_INTERVAL);
     rtc->Start();
 
