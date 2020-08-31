@@ -18,7 +18,7 @@ Be aware that the NTP protocol have no idea what timezones is. So times/timestam
 
 |  Method  |  Output Type | Description |
 |---|---|---|
-| Bundsgaard::Rtc::Rtc(int syncInterval) |   | Constructor. Interval in **minutes** |
+| Bundsgaard::Rtc::Rtc(int syncInterval, bool networkless = false) |   | Constructor. Interval in **minutes**. Networkless if the RTC should operate without network. Can be useful for debugging |
 | Bundsgaard::Rtc::Start() |   | Start the RTC |
 | Bundsgaard::Rtc::GetNTPTime() | time_t | Get's the latest time from the NTP server |
 | Bundsgaard::Rtc::GetTime() | time_t | Get the current system time |

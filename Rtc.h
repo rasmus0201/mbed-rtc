@@ -20,12 +20,12 @@ namespace Bundsgaard
      * @brief Error codes
      * 
      */
-    enum RtcErrors
+    typedef enum RtcErrors
     {
         NO_ERROR = 0,
         NO_INTERFACE = 1,
         CONNECTION_FAILED = 2
-    };
+    } RtcErrors;
 
     /**
      * @brief Rtc class to sync with NTP server
@@ -37,9 +37,10 @@ namespace Bundsgaard
             /**
              * @brief Construct a new Rtc object
              *
-             * @param syncInterval 
+             * @param syncInterval
+             * @param networkless
              */
-            Rtc(int syncInterval);
+            Rtc(int syncInterval, bool networkless = false);
 
             /**
              * @brief Destruct object
@@ -50,8 +51,9 @@ namespace Bundsgaard
             /**
              * @brief Start the thread
              * 
+             * @return RtcErrors
              */
-            void Start();
+            RtcErrors Start();
 
             /**
              * @brief Get last NTP time
@@ -101,6 +103,7 @@ namespace Bundsgaard
             time_t ntpTime = 0;
             int syncInterval;
             int ms;
+            bool networkless;
     };
 }
 

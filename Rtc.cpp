@@ -20,37 +20,14 @@ using namespace std::chrono;
  * @brief Construct a new Rtc:: Rtc object
  * 
  * @param syncInterval Interval is in MINUTES
+ * @param networkless If you don't want to connect to the internet for some reason
  */
-Rtc::Rtc(int syncInterval)
+Rtc::Rtc(int syncInterval, bool networkless)
 {
     this->ms = 0;
     this->syncInterval = syncInterval;
+    this->networkless = networkless;
     this->error = RtcErrors::NO_ERROR;
-    this->net = NetworkInterface::get_default_instance();
-
-    if (!this->net || this->net == nullptr) {
-        this->error = RtcErrors::NO_INTERFACE;
-        printf("Error! No network interface found.\n");
-
-        return;
-    }
-
-    if (this->net->get_connection_status() == NSAPI_STATUS_ERROR_UNSUPPORTED) {
-        this->error = RtcErrors::NO_INTERFACE;
-        printf("Error! Network interface not supported.\n");
-
-        return;
-    }
-
-    if (this->net->get_connection_status() == NSAPI_STATUS_DISCONNECTED) {
-        nsapi_size_or_error_t result = this->net->connect();
-        if (result != 0) {
-            this->error = RtcErrors::CONNECTION_FAILED;
-            printf("Error! net->connect() returned: %d\n", result);
-
-            return;
-        }
-    }
 }
 
 Rtc::~Rtc()
@@ -63,9 +40,50 @@ Rtc::~Rtc()
  * @brief Start a thread to collect NTP timestamps
  * 
  */
-void Rtc::Start()
+RtcErrors Rtc::Start()
 {
+    // If the user don't want to connect to the internet
+    // Then we early exit, though start the microsecond counter
+    // This could be usefull for testing
+    if (this->networkless) {
+        this->ticker.attach(callback(this, &Rtc::Tick), microseconds(1000));
+
+        return this->error;
+    }
+    
+    this->net = NetworkInterface::get_default_instance();
+
+    if (!this->net || this->net == nullptr) {
+        this->error = RtcErrors::NO_INTERFACE;
+        printf("Error! No network interface found.\n");
+
+        return this->error;
+    }
+
+    if (this->net->get_connection_status() == NSAPI_STATUS_ERROR_UNSUPPORTED) {
+        this->error = RtcErrors::NO_INTERFACE;
+        printf("Error! Network interface not supported.\n");
+
+        return this->error;
+    }
+
+    if (this->net->get_connection_status() == NSAPI_STATUS_DISCONNECTED) {
+        nsapi_size_or_error_t result = this->net->connect();
+        if (result != 0) {
+            this->error = RtcErrors::CONNECTION_FAILED;
+            printf("Error! net->connect() returned: %d\n", result);
+
+            return this->error;
+        }
+    }
+
+    // Block while the network is connecting
+    while(this->net->get_connection_status() == NSAPI_STATUS_CONNECTING) {}
+
+    this->ticker.attach(callback(this, &Rtc::Tick), microseconds(1000));
     this->thread.start(callback(this, &Bundsgaard::Rtc::Worker));
+
+    return this->error;
 }
 
 /**
@@ -74,10 +92,6 @@ void Rtc::Start()
  */
 void Rtc::Worker()
 {
-    // Block while the network is connecting
-    while(this->net->get_connection_status() == NSAPI_STATUS_CONNECTING) {}
-    
-    this->ticker.attach(callback(this, &Rtc::Tick), microseconds(1000));
     NTPClient ntp(this->net);
     bool firstIteration = true;
 
